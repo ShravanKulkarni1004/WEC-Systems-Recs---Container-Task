@@ -1,0 +1,39 @@
+
+
+services:
+  web:
+    build:
+      context: .  # Build the image from the Dockerfile in the current directory
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app  # Mount current directory to /app in the container
+    ports:
+      - "3000:3000"  # Expose Rails app on port 3000
+    depends_on:
+      - db  # Ensure db starts before web
+    environment:
+      DATABASE_URL: postgres://user:password@db:5432/myapp  # Update with your DB credentials
+      SECRET_KEY_BASE: pcRQ4a1R9v  # Add your secret key for Rails
+
+  db:
+    image: postgres:latest  # Use the latest Postgres image
+    volumes:
+      - db_data:/var/lib/postgresql/data  # Persist database data
+    environment:
+      POSTGRES_USER: user  # Set your Postgres user
+      POSTGRES_PASSWORD: password  # Set your Postgres password
+      POSTGRES_DB: myapp  # Set your database name
+
+  nginx:
+    image: nginx:latest  # Use the latest Nginx image
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf  # Use your Nginx config file
+      - nginx_data:/etc/nginx/conf.d  # Persist Nginx config
+    ports:
+      - "80:80"  # Expose Nginx on port 80
+    depends_on:
+      - web  # Ensure web starts before nginx
+
+volumes:
+  db_data:  # Define volume for the database
+  nginx_data:  # Define volume for Nginx configuration

@@ -1,0 +1,38 @@
+version: '3.7'
+
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8081:80"
+    depends_on:
+      - rails1
+      - rails2
+      - rails3
+
+  db:
+    image: 'postgres:latest'
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgres
+
+  rails1: &rails_base
+    build: ./ 
+    volumes:
+      - .:/docker/app
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db/myapp_production
+
+  rails2:
+    <<: *rails_base
+
+  rails3:
+    <<: *rails_base
+
+volumes:
+  postgres:

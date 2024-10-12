@@ -1,0 +1,27 @@
+version: '3.7'
+services:
+  nginx:
+    build: .
+    ports:
+    - "8081:80"
+    depends_on:
+    - rails
+  db:
+    image: 'postgres:latest'
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgres
+    # env_file:
+    #   - ./env/postgres.env # you can also define env variables like this.
+  rails:
+    build: ./ 
+    ports:
+      - '8082:3000'
+    volumes:
+      - .:/docker/app # add our local code to dockerfile
+    depends_on:
+      - db  # add all dependant container
+
+volumes:
+  postgres: # named volume
